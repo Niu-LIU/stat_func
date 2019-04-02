@@ -20,7 +20,7 @@ def linear_func(x, a, b):
     return a + b * x
 
 
-def linear_fit(x, y, yerrt=None, return_mod=False):
+def linear_fit(x, y, yerr=None, return_mod=False):
     """(Weighted) Linear fitting of y(x) = offset + drift * x
 
     Parameters

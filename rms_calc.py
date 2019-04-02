@@ -9,7 +9,7 @@ Created on Wed Feb 14 11:02:00 2018
 This script is used for calculating the pre-fit wrms,
 post-fit wrms, reduced-chi square, and standard deviation.
 
-3 Mar 2018, Niu : now function 'calc_rms' also computes the standard
+3 Mar 2018, Niu : now function 'rms_calc' also computes the standard
                   deviation
 
 """
@@ -17,12 +17,12 @@ post-fit wrms, reduced-chi square, and standard deviation.
 import numpy as np
 from functools import reduce
 
-__all__ = ["calc_rms"]
+__all__ = ["rms_calc"]
 
 
 # -----------------------------  FUNCTIONS -----------------------------
-def calc_rms(x, err=None):
-    '''Calculate the (weighted) wrms and std of x series.
+def rms_calc(x, err=None):
+    """Calculate the (weighted) wrms and std of x series.
 
     Standard deviation
     std = sqrt(sum( (xi-mean)^2/erri^2 ) / sum( 1.0/erri^2 ))
@@ -50,7 +50,7 @@ def calc_rms(x, err=None):
         (weighted) rms
     std : float
         (weighted) standard deviation
-    '''
+    """
 
     if err is None:
         mean = np.mean(x)
@@ -66,5 +66,8 @@ def calc_rms(x, err=None):
 
     return mean, wrms, std
 
+
+if __name__ == '__main__':
+    print("No job to execute!")
 
 # --------------------------------- END --------------------------------
