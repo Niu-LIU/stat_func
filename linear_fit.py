@@ -12,12 +12,12 @@ import numpy as np
 from numpy import sqrt
 from scipy.optimize import curve_fit
 
-__all__ = ["linear_func", "linear_fit"]
+__all__ = ["linear_fit"]
 
 
 # -----------------------------  FUNCTIONS -----------------------------
-def linear_func(x, a, b):
-    return a + b * x
+def linear_func(x, x0, x1):
+    return x0 + x1 * x
 
 
 def linear_fit(x, y, yerr=None, return_mod=False):
@@ -35,25 +35,44 @@ def linear_fit(x, y, yerr=None, return_mod=False):
         estimate and formal uncertainty of offset
     y_model : array_like of float
         predicition series from linear model of y
+    return_mod :
+        flag to determine whether to return the precition, decrepanced.
     """
 
     if yerr is None:
         popt, pcov = curve_fit(linear_func, x, y)
     else:
         popt, pcov = curve_fit(
-            linear_func, x, y, sigma=yerr, absolute_sigma=True)
+            linear_func, x, y, sigma=yerr, absolute_sigma=False)
 
-    offset, drift = popt
-    offset_err, drift_err = sqrt(pcov[0, 0]), sqrt(pcov[1, 1])
-    corr = pcov[0, 1] / offset_err / drift_err
+    # Create a `dict` object to store the results
+    res = {}
+
+    # Estimate, `x0` for interception and `x1` for slope
+    res["x0"], res["x1"] = popt
+
+    # Formal error and correlation coefficient
+    res["x0_err"], res["x1_err"] = sqrt(pcov[0, 0]), sqrt(pcov[1, 1])
+    res["corr"] = pcov[0, 1] / offset_err / drift_err
 
     # Prediction
-    y_model = linear_func(x, *popt)
+    res["predict"] = linear_func(x, *popt)
 
-    if return_mod:
-        return offset, offset_err, drift, drift_err, corr, y_model
+    # Residual
+    res["residual"] = y - res["predict"]
+
+    # Chi squared per dof
+    if yerr is None:
+        res["chi2_dof"] = np.sum(res["residual"]) / (len(y) - 2)
     else:
-        return offset, offset_err, drift, drift_err, corr
+        res["chi2_dof"] = np.sum(res["residual"] / yerr) / (len(y) - 2)
+
+    # if return_mod:
+    #     return offset, offset_err, drift, drift_err, corr, y_model
+    # else:
+    #     return offset, offset_err, drift, drift_err, corr
+
+    return res
 
 
 # --------------------------------- END --------------------------------
